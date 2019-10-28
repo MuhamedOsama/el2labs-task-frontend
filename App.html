@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+
+<body>
+    <div id="app">
+        <v-app>
+            <v-content>
+                <v-container>
+                    <v-layout row wrap>
+                        <v-flex xs-4>
+                            <v-card color="blue" class="pa-4 ma-4">
+                                <h1>listing products</h1>
+                                <v-list-item two-line v-for="product in products">
+                                    <v-list-item-content>
+                                        <v-list-item-title>Name: {{product.name}}</v-list-item-title>
+                                        <v-list-item-subtitle>Price: {{product.price}} EGP</v-list-item-subtitle>
+                                        <v-list-item-subtitle>Id: {{product.id}}</v-list-item-subtitle>
+                                    </v-list-item-content>
+                                </v-list-item>
+                            </v-card>
+                        </v-flex>
+                        <v-flex xs-4>
+                            <v-card color="amber" class="pa-4 ma-4">
+                                <v-text-field v-model="postname" outlined label="Product name">
+                                </v-text-field>
+                                <v-text-field v-model="postprice" outlined label="price" prefix="$"></v-text-field>
+                                <v-btn large color="success" dark @click="add">Add Product</v-btn>
+                            </v-card>
+                        </v-flex>
+                        <v-flex xs-4>
+                            <v-card color="green" class="pa-4 ma-4">
+                                    <v-text-field v-model="putid" outlined label="Product Id"> </v-text-field>
+                                    <v-text-field v-model="putname" outlined label="Product Name"></v-text-field>
+
+                                        <v-text-field v-model="putprice" outlined label="price" prefix="$"></v-text-field>
+                                        <v-btn large color="warning" dark @click="edit">Edit Product</v-btn>
+                            </v-card>
+                        </v-flex>
+                        <v-flex xs-4>
+                            <v-card color="red" class="pa-4 ma-4">
+                                    <v-text-field v-model="deleteid" outlined label="Product Id"></v-text-field>
+                                    <v-btn large color="danger" dark @click="del">Delete Product</v-btn>
+                            </v-card>
+                        </v-flex>
+                    </v-layout>
+                </v-container>
+            </v-content>
+        </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        vuetify: new Vuetify(),
+        mounted() {
+            fetch("https://localhost:44388/api/products")
+                .then((res) => {
+
+                    return res.json()
+                })
+                .then((result) => {
+                    console.log(result)
+                    this.products = result
+                    console.log(this.products)
+                })
+        },
+        data() {
+            return {
+                products: [],
+                postname:'',
+                postprice:null,
+                putid:'',
+                putname:'',
+                putprice:null,
+                deleteid:null,
+                putid:null
+
+            }
+        },
+        methods: {
+            fetcher(){
+                fetch("https://localhost:44388/api/products")
+                .then((res) => {
+
+                    return res.json()
+                })
+                .then((result) => {
+                    console.log(result)
+                    this.products = result
+                    console.log(this.products)
+                })
+            },
+            edit(){
+                fetch(`https://localhost:44388/api/products/${this.putid}`,{
+                    method:'PUT',
+                    mode:'cors',
+                    cashe:'no-cashe',
+                    credentials:'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(
+                        {
+                            Id:this.putid,
+                            Name:this.putname,
+                            Price: this.putprice
+                        }
+                    )
+                })
+                .then((res)=>{
+                    console.log(res)
+                    this.fetcher()
+                })
+                .then((result)=>{
+                    console.log(result)
+                    
+                })
+            },
+            del(){
+                fetch(`https://localhost:44388/api/products/${this.deleteid}`,{
+                    method:'DELETE',
+                    mode:'cors',
+                    cashe:'no-cashe',
+                    credentials:'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                })
+                .then((res)=>{
+                    return res.json()
+                })
+                .then((result)=>{
+                    console.log(result)
+                    this.fetcher()
+                })
+            },
+            add(){
+                fetch("https://localhost:44388/api/products",{
+                    method:'POST',
+                    mode:'cors',
+                    cashe:'no-cashe',
+                    credentials:'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(
+                        {
+                            Name:this.postname,
+                            Price: this.postprice
+                        }
+                    )
+                })
+                .then((res)=>{
+                    return res.json()
+                })
+                .then((result)=>{
+                    console.log(result)
+                    this.fetcher()
+                })
+            }
+        }
+    })
+</script>
+
+<style scoped>
+    #app {
+        height: 100vh;
+        display: grid;
+        place-items: center;
+    }
+
+    /* .container {
+    display: grid;
+    background-color: #f8f8f8;
+    grid-gap: 25px;
+    height: 50%;
+    padding: 30px;
+    border-radius: 8px;
+    grid-template-columns: repeat(4, minmax(300px, 1fr)); 
+    place-items: start;
+} */
+</style>
